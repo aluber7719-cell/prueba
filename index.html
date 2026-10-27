@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#02030a">
+<title>Entre todas las personas</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#02030a;
+    color:#fff;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+
+body{
+    position:relative;
+}
+
+/* Cielo */
+#sky{
+    position:fixed;
+    inset:0;
+    background:
+        radial-gradient(circle at 50% 45%, rgba(57,72,130,.13), transparent 34%),
+        radial-gradient(circle at 50% 100%, rgba(26,34,73,.12), transparent 45%),
+        #02030a;
+    overflow:hidden;
+}
+
+#stars{
+    position:absolute;
+    inset:0;
+}
+
+.star{
+    position:absolute;
+    width:2px;
+    height:2px;
+    border-radius:50%;
+    background:#fff;
+    opacity:.25;
+    box-shadow:0 0 7px rgba(255,255,255,.8);
+    animation:twinkle var(--duration) ease-in-out infinite;
+}
+
+@keyframes twinkle{
+    0%,100%{opacity:.15;transform:scale(.8)}
+    50%{opacity:.85;transform:scale(1.25)}
+}
+
+/* Estrellas principales */
+.constellation-star{
+    position:absolute;
+    width:4px;
+    height:4px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:0 0 14px 3px rgba(255,255,255,.7);
+    opacity:0;
+    transition:opacity 2s ease, transform 2s ease;
+}
+
+.constellation-line{
+    position:absolute;
+    height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+    transform-origin:left center;
+    opacity:0;
+    transition:opacity 2s ease;
+}
+
+/* Contenido */
+.content{
+    position:relative;
+    z-index:5;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:30px;
+}
+
+.scene{
+    position:absolute;
+    width:min(850px,92vw);
+    opacity:0;
+    transform:translateY(18px);
+    pointer-events:none;
+    transition:opacity 1.2s ease, transform 1.2s ease;
+}
+
+.scene.active{
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+}
+
+.text{
+    font-size:clamp(25px,5vw,52px);
+    font-weight:300;
+    line-height:1.25;
+    letter-spacing:-.02em;
+    text-shadow:0 0 30px rgba(255,255,255,.12);
+}
+
+.subtext{
+    margin-top:22px;
+    font-size:clamp(13px,2vw,17px);
+    font-weight:300;
+    color:rgba(255,255,255,.5);
+    letter-spacing:.12em;
+}
+
+/* Botones */
+button{
+    border:1px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.055);
+    color:#fff;
+    border-radius:999px;
+    padding:14px 27px;
+    font-size:14px;
+    letter-spacing:.08em;
+    cursor:pointer;
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    transition:.35s ease;
+}
+
+button:hover{
+    background:rgba(255,255,255,.12);
+    border-color:rgba(255,255,255,.4);
+    transform:translateY(-2px);
+}
+
+button:active{
+    transform:scale(.97);
+}
+
+.start-btn{
+    margin-top:38px;
+}
+
+/* Reproductor */
+.player{
+    width:min(420px,88vw);
+    margin:35px auto 0;
+    padding:22px;
+    border:1px solid rgba(255,255,255,.11);
+    border-radius:24px;
+    background:rgba(255,255,255,.045);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    box-shadow:0 20px 70px rgba(0,0,0,.35);
+}
+
+.cover{
+    width:76px;
+    height:76px;
+    margin:0 auto 18px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.15);
+    background:
+        radial-gradient(circle,#fff 0 3px,transparent 4px),
+        radial-gradient(circle,rgba(255,255,255,.2),transparent 62%);
+    box-shadow:0 0 30px rgba(255,255,255,.08);
+    animation:spin 12s linear infinite paused;
+}
+
+.cover.playing{
+    animation-play-state:running;
+}
+
+@keyframes spin{
+    to{transform:rotate(360deg)}
+}
+
+.song-title{
+    font-size:15px;
+    letter-spacing:.08em;
+    font-weight:400;
+}
+
+.song-author{
+    margin-top:6px;
+    font-size:12px;
+    color:rgba(255,255,255,.4);
+}
+
+.progress{
+    width:100%;
+    height:3px;
+    margin:20px 0 9px;
+    appearance:none;
+    -webkit-appearance:none;
+    background:rgba(255,255,255,.12);
+    border-radius:10px;
+    outline:none;
+}
+
+.progress::-webkit-slider-thumb{
+    appearance:none;
+    -webkit-appearance:none;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#fff;
+    cursor:pointer;
+}
+
+.time{
+    display:flex;
+    justify-content:space-between;
+    font-size:10px;
+    color:rgba(255,255,255,.35);
+}
+
+.play{
+    margin-top:17px;
+    width:48px;
+    height:48px;
+    padding:0;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* Texto sincronizado */
+.lyric{
+    min-height:110px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:clamp(23px,4vw,40px);
+    font-weight:300;
+    line-height:1.35;
+    transition:opacity .7s ease, transform .7s ease;
+}
+
+.lyric.fade{
+    opacity:0;
+    transform:translateY(10px);
+}
+
+/* Final */
+.final-title{
+    font-size:clamp(27px,5vw,54px);
+    line-height:1.3;
+    font-weight:300;
+}
+
+.final-title strong{
+    font-weight:500;
+}
+
+.initial{
+    margin:30px auto;
+    width:95px;
+    height:95px;
+    border:1px solid rgba(255,255,255,.2);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:34px;
+    font-weight:200;
+    box-shadow:0 0 45px rgba(255,255,255,.08);
+}
+
+.restart{
+    margin-top:25px;
+    opacity:.65;
+}
+
+/* Audio oculto */
+audio{
+    display:none;
+}
+
+/* Indicador inferior */
+.hint{
+    position:fixed;
+    z-index:10;
+    bottom:25px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:10px;
+    letter-spacing:.15em;
+    color:rgba(255,255,255,.25);
+    text-transform:uppercase;
+    transition:opacity .8s;
+}
+
+/* Móvil */
+@media(max-width:600px){
+    .text{
+        font-size:28px;
+    }
+
+    .subtext{
+        line-height:1.6;
+    }
+
+    .player{
+        padding:18px;
+    }
+
+    .hint{
+        bottom:18px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="sky">
+    <div id="stars"></div>
+
+    <!-- Constelación final -->
+    <div class="constellation-star" style="left:38%;top:40%"></div>
+    <div class="constellation-star" style="left:46%;top:33%"></div>
+    <div class="constellation-star" style="left:54%;top:38%"></div>
+    <div class="constellation-star" style="left:62%;top:33%"></div>
+    <div class="constellation-star" style="left:67%;top:44%"></div>
+    <div class="constellation-star" style="left:60%;top:55%"></div>
+    <div class="constellation-star" style="left:50%;top:63%"></div>
+    <div class="constellation-star" style="left:40%;top:55%"></div>
+    <div class="constellation-star" style="left:33%;top:44%"></div>
+
+    <div class="constellation-line" style="left:38%;top:40%;width:10%;transform:rotate(-39deg)"></div>
+    <div class="constellation-line" style="left:46%;top:33%;width:9%;transform:rotate(31deg)"></div>
+    <div class="constellation-line" style="left:54%;top:38%;width:9%;transform:rotate(-31deg)"></div>
+    <div class="constellation-line" style="left:62%;top:33%;width:12%;transform:rotate(47deg)"></div>
+    <div class="constellation-line" style="left:67%;top:44%;width:14%;transform:rotate(141deg)"></div>
+    <div class="constellation-line" style="left:60%;top:55%;width:13%;transform:rotate(150deg)"></div>
+    <div class="constellation-line" style="left:50%;top:63%;width:13%;transform:rotate(-147deg)"></div>
+    <div class="constellation-line" style="left:40%;top:55%;width:13%;transform:rotate(-142deg)"></div>
+</div>
+
+<div class="content">
+
+    <!-- ESCENA 1 -->
+    <section class="scene active" id="scene1">
+        <div class="text">Hay millones de personas ahí afuera.</div>
+        <div class="subtext">Y probablemente nunca conoceremos a la mayoría.</div>
+        <button class="start-btn" onclick="nextScene()">CONTINUAR</button>
+    </section>
+
+    <!-- ESCENA 2 -->
+    <section class="scene" id="scene2">
+        <div class="text">Y entre todas ellas...</div>
+        <div class="subtext">por alguna razón, terminé encontrándote a ti.</div>
+        <button class="start-btn" onclick="nextScene()">CONTINUAR</button>
+    </section>
+
+    <!-- ESCENA 3 -->
+    <section class="scene" id="scene3">
+        <div class="text">Hay canciones que inevitablemente me recuerdan a ti.</div>
+        <div class="player">
+            <div class="cover" id="cover"></div>
+
+            <div class="song-title">Una canción para ti</div>
+            <div class="song-author">Tu canción</div>
+
+            <input class="progress" id="progress" type="range" min="0" max="100" value="0">
+
+            <div class="time">
+                <span id="current">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
+
+            <button class="play" id="playBtn" onclick="toggleMusic()">▶</button>
+        </div>
+
+        <audio id="music" preload="metadata">
+            <source src="cancion.mp3" type="audio/mpeg">
+        </audio>
+    </section>
+
+    <!-- ESCENA 4 -->
+    <section class="scene" id="scene4">
+        <div class="lyric" id="lyric">
+            No sé exactamente cuándo empezó.
+        </div>
+    </section>
+
+    <!-- ESCENA 5 -->
+    <section class="scene" id="scene5">
+        <div class="final-title">
+            De todas las coincidencias que pudieron ocurrir...
+            <br><br>
+            <strong>me gusta que una de ellas hayas sido tú.</strong>
+        </div>
+
+        <!-- Cambia la letra por la inicial de ella -->
+        <div class="initial">♡</div>
+
+        <button class="restart" onclick="location.reload()">VOLVER A MIRAR LAS ESTRELLAS</button>
+    </section>
+
+</div>
+
+<div class="hint" id="hint">hecho especialmente para ti</div>
+
+<script>
+/* =========================
+   CONFIGURACIÓN
+   ========================= */
+
+/* Cambia estos textos por los tuyos */
+const lyricTexts = [
+    {time: 0, text: "No sé exactamente cuándo empezó."},
+    {time: 8, text: "Tal vez fue una conversación."},
+    {time: 16, text: "Tal vez una mirada."},
+    {time: 24, text: "O simplemente esos pequeños momentos."},
+    {time: 32, text: "Pero poco a poco empezaste a importar."},
+    {time: 40, text: "Y ahora hay canciones que me recuerdan a ti."},
+    {time: 48, text: "Qué raro es encontrar a alguien así."},
+    {time: 56, text: "Y qué bonito que seas tú."}
+];
+
+/* =========================
+   ESTRELLAS
+   ========================= */
+
+const starsContainer = document.getElementById("stars");
+
+for(let i=0;i<170;i++){
+    const star=document.createElement("div");
+    star.className="star";
+
+    star.style.left=Math.random()*100+"%";
+    star.style.top=Math.random()*100+"%";
+    star.style.width=(Math.random()*2+1)+"px";
+    star.style.height=star.style.width;
+    star.style.setProperty("--duration",(Math.random()*4+2)+"s");
+    star.style.animationDelay=(Math.random()*5)+"s";
+
+    starsContainer.appendChild(star);
+}
+
+/* =========================
+   ESCENAS
+   ========================= */
+
+let currentScene=1;
+
+function showScene(number){
+    document.querySelectorAll(".scene").forEach(scene=>{
+        scene.classList.remove("active");
+    });
+
+    const target=document.getElementById("scene"+number);
+    if(target) target.classList.add("active");
+
+    currentScene=number;
+
+    if(number===5){
+        showConstellation();
+        document.getElementById("hint").style.opacity="0";
+    }
+}
+
+function nextScene(){
+    if(currentScene<5){
+        showScene(currentScene+1);
+    }
+}
+
+/* =========================
+   CONSTELACIÓN
+   ========================= */
+
+function showConstellation(){
+    document.querySelectorAll(".constellation-star").forEach((star,i)=>{
+        setTimeout(()=>{
+            star.style.opacity="1";
+        },i*120);
+    });
+
+    document.querySelectorAll(".constellation-line").forEach((line,i)=>{
+        setTimeout(()=>{
+            line.style.opacity=".55";
+        },700+i*120);
+    });
+}
+
+/* =========================
+   MÚSICA
+   ========================= */
+
+const music=document.getElementById("music");
+const playBtn=document.getElementById("playBtn");
+const cover=document.getElementById("cover");
+const progress=document.getElementById("progress");
+const currentTime=document.getElementById("current");
+const duration=document.getElementById("duration");
+const lyric=document.getElementById("lyric");
+
+function toggleMusic(){
+    if(music.paused){
+        music.play().then(()=>{
+            playBtn.textContent="Ⅱ";
+            cover.classList.add("playing");
+            showScene(4);
+        }).catch(()=>{
+            alert("Agrega tu archivo 'cancion.mp3' junto a este index.html.");
+        });
+    }else{
+        music.pause();
+        playBtn.textContent="▶";
+        cover.classList.remove("playing");
+    }
+}
+
+music.addEventListener("loadedmetadata",()=>{
+    duration.textContent=formatTime(music.duration);
+});
+
+music.addEventListener("timeupdate",()=>{
+    if(music.duration){
+        progress.value=(music.currentTime/music.duration)*100;
+    }
+
+    currentTime.textContent=formatTime(music.currentTime);
+
+    let selected=lyricTexts[0];
+
+    for(const item of lyricTexts){
+        if(music.currentTime>=item.time){
+            selected=item;
+        }
+    }
+
+    if(lyric.textContent!==selected.text){
+        lyric.classList.add("fade");
+
+        setTimeout(()=>{
+            lyric.textContent=selected.text;
+            lyric.classList.remove("fade");
+        },350);
+    }
+
+    /* Cuando la canción termina */
+    if(music.duration && music.currentTime>=music.duration-0.2){
+        setTimeout(()=>{
+            music.pause();
+            playBtn.textContent="▶";
+            cover.classList.remove("playing");
+            showScene(5);
+        },800);
+    }
+});
+
+progress.addEventListener("input",()=>{
+    if(music.duration){
+        music.currentTime=(progress.value/100)*music.duration;
+    }
+});
+
+function formatTime(seconds){
+    if(!isFinite(seconds)) return "0:00";
+
+    const min=Math.floor(seconds/60);
+    const sec=Math.floor(seconds%60).toString().padStart(2,"0");
+
+    return `${min}:${sec}`;
+}
+</script>
+
+</body>
+</html>
